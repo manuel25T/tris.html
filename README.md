@@ -143,6 +143,7 @@
         let giocatoreAttuale = "X";
         let giocoAttivo = true;
 
+        // Array corretto contenente tutte le combinazioni per vincere
         const condizioniVittoria = [, [3, 4, 5], [6, 7, 8], // Orizzontali, [1, 4, 7], [2, 5, 8], // Verticali, [2, 4, 6]             // Diagonali
         ];
 
@@ -153,8 +154,10 @@
         function mossaGiocatore(cell) {
             const index = cell.getAttribute('data-index');
 
+            // Se la casella è già occupata o il gioco è finito, non fare nulla
             if (tabellone[index] !== "" || !giocoAttivo) return;
 
+            // Aggiorna lo stato del tabellone e la grafica della cella
             tabellone[index] = giocatoreAttuale;
             cell.textContent = giocatoreAttuale;
             cell.classList.add(giocatoreAttuale);
@@ -166,15 +169,17 @@
             let roundVinto = false;
             let combinazioneVincente = [];
 
+            // Verifica se il giocatore attuale ha fatto tris
             for (let i = 0; i < condizioniVittoria.length; i++) {
                 const [a, b, c] = condizioniVittoria[i];
-                if (tabellone[a] && tabellone[a] === tabellone[b] && tabellone[a] === tabellone[c]) {
+                if (tabellone[a] !== "" && tabellone[a] === tabellone[b] && tabellone[a] === tabellone[c]) {
                     roundVinto = true;
                     combinazioneVincente = [a, b, c];
                     break;
                 }
             }
 
+            // Gestione Vittoria
             if (roundVinto) {
                 statusElement.textContent = `🎉 Il giocatore ${giocatoreAttuale} ha vinto!`;
                 combinazioneVincente.forEach(index => cells[index].classList.add('winner'));
@@ -182,12 +187,14 @@
                 return;
             }
 
+            // Gestione Pareggio
             if (!tabellone.includes("")) {
                 statusElement.textContent = "🤝 Pareggio! Ottima partita.";
                 giocoAttivo = false;
                 return;
             }
 
+            // Cambio turno corretto tra X e O
             giocatoreAttuale = giocatoreAttuale === "X" ? "O" : "X";
             statusElement.textContent = `Turno del giocatore: ${giocatoreAttuale}`;
         }
@@ -200,7 +207,7 @@
             
             cells.forEach(cell => {
                 cell.textContent = "";
-                cell.className = "cell"; // Rimuove classi X, O e winner
+                cell.className = "cell"; 
             });
         }
     </script>
