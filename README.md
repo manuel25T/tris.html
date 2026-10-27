@@ -1,57 +1,209 @@
-# tris.py
-def stampa_tabellone(tabellone):
-    print("\n")
-    print(f" {tabellone[0]} | {tabellone[1]} | {tabellone[2]} ")
-    print("---|---|---")
-    print(f" {tabellone[3]} | {tabellone[4]} | {tabellone[5]} ")
-    print("---|---|---")
-    print(f" {tabellone[6]} | {tabellone[7]} | {tabellone[8]} ")
-    print("\n")
+# tris.html
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gioco del Tris</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --grid-color: #334155;
+            --x-color: #38bdf8;
+            --o-color: #f43f5e;
+            --win-bg: #22c55e;
+        }
 
-def controlla_vittoria(tabellone, giocatore):
-    condizioni_vittoria = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8], # Orizzontali
-        [0, 3, 6], [1, 4, 7], [2, 5, 8], # Verticali
-        [0, 4, 8], [2, 4, 6]             # Diagonali
-    ]
-    for condizione in condizioni_vittoria:
-        if tabellone[condizione[0]] == tabellone[condizione[1]] == tabellone[condizione[2]] == giocatore:
-            return True
-    return False
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-def gioco():
-    tabellone = [" " for _ in range(9)]
-    giocatore_attuale = "X"
-    mosse = 0
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
 
-    print("Benvenuto al Gioco del Tris!")
-    print("Le posizioni sono numerate da 1 a 9, partendo in alto a sinistra.")
-    stampa_tabellone(["1", "2", "3", "4", "5", "6", "7", "8", "9"])
+        #status {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            min-height: 30px;
+        }
 
-    while mosse < 9:
-        stampa_tabellone(tabellone)
-        try:
-            mossa = int(input(f"Turno del giocatore {giocatore_attuale}. Scegli una posizione (1-9): ")) - 1
-        except ValueError:
-            print("Inserisci un numero valido!")
-            continue
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+            background-color: var(--grid-color);
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
 
-        if mossa < 0 or mossa > 8 or tabellone[mossa] != " ":
-            print("Mossa non valida o posizione già occupata. Riprova.")
-            continue
+        .cell {
+            background-color: #1e293b;
+            border: none;
+            border-radius: 8px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s, transform 0.1s;
+        }
 
-        tabellone[mossa] = giocatore_attuale
-        mosse += 1
+        .cell:hover {
+            background-color: #475569;
+        }
 
-        if controlla_vittoria(tabellone, giocatore_attuale):
-            stampa_tabellone(tabellone)
-            print(f"Congratulazioni! Il giocatore {giocatore_attuale} ha vinto!")
-            return
+        .cell:active {
+            transform: scale(0.95);
+        }
 
-        giocatore_attuale = "O" if giocatore_attuale == "X" else "X"
+        .cell.X {
+            color: var(--x-color);
+        }
 
-    stampa_tabellone(tabellone)
-    print("Pareggio! Ottima partita.")
+        .cell.O {
+            color: var(--o-color);
+        }
 
-if __name__ == "__main__":
-    gioco()
+        .cell.winner {
+            background-color: var(--win-bg);
+            color: white;
+            animation: pulse 1s infinite alternate;
+        }
+
+        #reset-btn {
+            margin-top: 2rem;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        #reset-btn:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        #reset-btn:active {
+            transform: translateY(0);
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Tris Interattivo</h1>
+    <div id="status">Tocca una casella per iniziare. Turno di: X</div>
+
+    <div class="board" id="board">
+        <button class="cell" data-index="0"></button>
+        <button class="cell" data-index="1"></button>
+        <button class="cell" data-index="2"></button>
+        <button class="cell" data-index="3"></button>
+        <button class="cell" data-index="4"></button>
+        <button class="cell" data-index="5"></button>
+        <button class="cell" data-index="6"></button>
+        <button class="cell" data-index="7"></button>
+        <button class="cell" data-index="8"></button>
+    </div>
+
+    <button id="reset-btn" onclick="resetGioco()">Ricomincia Partita</button>
+
+    <script>
+        const boardElement = document.getElementById('board');
+        const statusElement = document.getElementById('status');
+        const cells = document.querySelectorAll('.cell');
+        
+        let tabellone = ["", "", "", "", "", "", "", "", ""];
+        let giocatoreAttuale = "X";
+        let giocoAttivo = true;
+
+        const condizioniVittoria = [, [3, 4, 5], [6, 7, 8], // Orizzontali, [1, 4, 7], [2, 5, 8], // Verticali, [2, 4, 6]             // Diagonali
+        ];
+
+        cells.forEach(cell => {
+            cell.addEventListener('click', () => mossaGiocatore(cell));
+        });
+
+        function mossaGiocatore(cell) {
+            const index = cell.getAttribute('data-index');
+
+            if (tabellone[index] !== "" || !giocoAttivo) return;
+
+            tabellone[index] = giocatoreAttuale;
+            cell.textContent = giocatoreAttuale;
+            cell.classList.add(giocatoreAttuale);
+
+            controllaEsito();
+        }
+
+        function controllaEsito() {
+            let roundVinto = false;
+            let combinazioneVincente = [];
+
+            for (let i = 0; i < condizioniVittoria.length; i++) {
+                const [a, b, c] = condizioniVittoria[i];
+                if (tabellone[a] && tabellone[a] === tabellone[b] && tabellone[a] === tabellone[c]) {
+                    roundVinto = true;
+                    combinazioneVincente = [a, b, c];
+                    break;
+                }
+            }
+
+            if (roundVinto) {
+                statusElement.textContent = `🎉 Il giocatore ${giocatoreAttuale} ha vinto!`;
+                combinazioneVincente.forEach(index => cells[index].classList.add('winner'));
+                giocoAttivo = false;
+                return;
+            }
+
+            if (!tabellone.includes("")) {
+                statusElement.textContent = "🤝 Pareggio! Ottima partita.";
+                giocoAttivo = false;
+                return;
+            }
+
+            giocatoreAttuale = giocatoreAttuale === "X" ? "O" : "X";
+            statusElement.textContent = `Turno del giocatore: ${giocatoreAttuale}`;
+        }
+
+        function resetGioco() {
+            tabellone = ["", "", "", "", "", "", "", "", ""];
+            giocatoreAttuale = "X";
+            giocoAttivo = true;
+            statusElement.textContent = `Turno del giocatore: ${giocatoreAttuale}`;
+            
+            cells.forEach(cell => {
+                cell.textContent = "";
+                cell.className = "cell"; // Rimuove classi X, O e winner
+            });
+        }
+    </script>
+
+</body>
+</html>
